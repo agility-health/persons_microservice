@@ -6,7 +6,7 @@ import jwt
 from functools import wraps
 
 from app import app
-
+from models.user import User
 
 load_dotenv()
 
@@ -39,8 +39,9 @@ def create_access_token(refresh_token):
     return jsonify({'message': 'refresh token is not valid'})
 
 
-def create_token(email):
+def create_token(email, id):
     paylod = {
+        'id': id,
         'email': email,
         'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=float(os.getenv('TOKEN_LIFETIME'))),
         'grant_type': 'access'
@@ -67,3 +68,9 @@ def verify_access_token(token):
     if paylod and not paylod.get('grant_type') == 'refresh':
         return True, paylod
     return False
+
+
+def get_user_from_token(request):
+    token = request.headers['x-access-tokens']
+    paylod = jwt.decode(token, app.config['SECRET_KEY'], os.getenv('ALGORTHM'))
+    return User.query.filter_by(id=paylod.get('id')).first()

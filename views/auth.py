@@ -6,7 +6,6 @@ from flask import request, Blueprint, Response
 from models.user import User
 from config import db
 from services.auth import create_token, create_access_token
-
 my_view = Blueprint("views", __name__)
 
 
@@ -26,7 +25,7 @@ def registration_user():
     new_user.set_password(password)
     db.session.add(new_user)
     db.session.commit()
-    return create_token(email)
+    return create_token(email, new_user.id)
 
 
 @my_view.route("/login", methods=["Post"])
@@ -39,7 +38,7 @@ def login():
                          mimetype='application/json',
                          status=401)
     if user.check_password(password):
-        return create_token(user.email)
+        return create_token(user.email, user.id)
 
 
 @my_view.route("/refresh_token", methods=["Post"])
