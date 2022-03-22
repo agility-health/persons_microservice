@@ -5,6 +5,7 @@ from flask import Blueprint, jsonify, request, Response
 from models.doctor import Doctor, Education
 from config import db
 from services.auth import token_required, get_user_from_token
+from services.doctor import get_doctor_by_id, get_education_by_id_from_doctor
 from constants import DATE_FORMAT
 
 
@@ -58,13 +59,13 @@ def create_doctor():
 
 @doctor_view.route("/doctor/<id>", methods=["Get"])
 def get_doctor(id):
-    doctor = Doctor.query.filter_by(id=id).first()
+    doctor = get_doctor_by_id(id)
     return doctor_schema.dump(doctor)
 
 
 @doctor_view.route("/doctor/<id>", methods=["Put"])
 def put_doctor(id):
-    doctor = Doctor.query.filter_by(id=id).first()
+    doctor = get_doctor_by_id(id)
     doctor.first_name = request.json["first_name"]
     doctor.surname = request.json["surname"]
     doctor.birthday = datetime.strptime(request.json["birthday"], DATE_FORMAT)
@@ -75,38 +76,35 @@ def put_doctor(id):
 
 @doctor_view.route("/doctor/<id>", methods=["Delete"])
 def delete_doctor(id):
-    doctor = Doctor.query.filter_by(id=id).first()
+    doctor = get_doctor_by_id(id)
     db.session.delete(doctor)
     db.session.commit()
     return Response(status=204)
 
 
-@doctor_view.route("/education", methods=["Post"])
-def create_education():
-    new_education = Education(
-        university_name = request.json["university_name"],
-        specialization = request.json["specialization"],
-        education_degree = request.json["education_degree"],
-        date_of_graduation = request.json["date_of_graduation"],
-    )
-
-    db.session.add(new_education)
+@doctor_view.route("/doctor/<doctor_id>/education", methods=["Post"])
+def create_education(doctor_id):
+    doctor = get_doctor_by_id(doctor_id)
+    doctor.education = get_education_from_request(request.json)
     db.session.commit()
 
-    return education_schema.dump(new_education)
+    return doctor_schema.dump(doctor)
 
-@doctor_view.route("/education", methods=["Get"])
-def get_education():
-    return jsonify(educations_schema.dump(Education.query.all()))
+@doctor_view.route("/doctor/<doctor_id>/education", methods=["Get"])
+def get_education(doctor_id):
+    doctor = get_doctor_by_id(doctor_id)
+    return jsonify(educations_schema.dump(doctor.education))
 
-@doctor_view.route("/education/<id>", methods=["Get"])
-def get_education_by_id(id):
-    education = Education.query.filter_by(id=id).first()
+@doctor_view.route("/doctor/<doctor_id>/education/<education_id>", methods=["Get"])
+def get_education_by_id(doctor_id, education_id):
+    doctor = get_doctor_by_id(doctor_id)
+    education = get_education_by_id_from_doctor(doctor, education_id)
     return education_schema.dump(education)
 
-@doctor_view.route("/education/<id>", methods=["Put"])
-def update_education_by_id(id):
-    education = Education.query.filter_by(id=id).first()
+@doctor_view.route("/doctor/<doctor_id>/education/<education_id>", methods=["Put"])
+def update_education_by_id(doctor_id, education_id):
+    doctor = get_doctor_by_id(doctor_id)
+    education = get_education_by_id_from_doctor(doctor, education_id)
     education.university_name = request.json['university_name']
     education.specialization = request.json['specialization']
     education.education_degree = request.json['education_degree']
@@ -114,9 +112,10 @@ def update_education_by_id(id):
     db.session.commit()
     return Response(status=200)
 
-@doctor_view.route("/education/<id>", methods=["Delete"])
-def delete_education_by_id(id):
-    education = Education.query.filter_by(id=id).first()
+@doctor_view.route("/doctor/<doctor_id>/education/<education_id>", methods=["Delete"])
+def delete_education_by_id(doctor_id, education_id):
+    doctor = get_doctor_by_id(doctor_id)
+    education = get_education_by_id_from_doctor(doctor, education_id)
     db.session.delete(education)
     db.session.commit()
     return Response(status=204)
