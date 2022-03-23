@@ -33,3 +33,37 @@ class DoctorSchema(Schema):
 
 doctor_schema = DoctorSchema()
 doctors_schema = DoctorSchema(many=True)
+
+
+class AddressSchema(Schema):
+    id = fields.Integer()
+    country = fields.String()
+    city = fields.String()
+    street = fields.String()
+    house_number = fields.String()
+    number_flat = fields.String()
+
+address_schema = AddressSchema()
+addresses_schema = AddressSchema(many=True)
+
+
+class PhoneSchema(Schema):
+    id = fields.Integer()
+    country_code = fields.Integer()
+    area_code = fields.Integer()
+    number = fields.Integer()
+
+phone_schema = PhoneSchema()
+phones_schema = PhoneSchema(many=True)
+
+
+class PatientSchema(Schema):
+    id = fields.Integer()
+    first_name = fields.String()
+    surname = fields.String()
+    birthday = fields.Date()
+    address = fields.Nested(AddressSchema)
+    phone = fields.Nested(PhoneSchema)
+
+patient_schema = PatientSchema()
+patients_schema = PatientSchema(many=True)
