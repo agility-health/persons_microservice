@@ -70,7 +70,7 @@ def verify_access_token(token):
     return False
 
 
-def get_user_from_token(request):
+def get_user_from_request(request):
     token = request.headers['x-access-tokens']
     paylod = jwt.decode(token, app.config['SECRET_KEY'], os.getenv('ALGORTHM'))
     return User.query.filter_by(id=paylod.get('id')).first()
