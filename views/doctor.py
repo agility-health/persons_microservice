@@ -5,35 +5,12 @@ from models.doctor import Doctor, Education
 from config import db
 from services.auth import token_required, get_user_from_request
 from services.doctor import get_doctor_by_id,\
-     get_education_by_id_from_doctor,\
      is_equal_user_from_request_with_user_db        
-from constants import DATE_FORMAT
+from services.services import get_object_by_id
 
 
 doctor_view = Blueprint("doctor", __name__)
 
-
-def get_education_from_request(education):
-    education_from_db = []
-    for ed in education:
-        education_obj_db = Education.query.filter_by(
-            university_name=ed["university_name"],
-            specialization=ed["specialization"],
-            education_degree=ed["education_degree"],
-            date_of_graduation=ed["date_of_graduation"]).first()
-        if education_obj_db:
-            education_from_db.append(education_obj_db)
-        else:
-            new_education=Education(
-                university_name=ed["university_name"],
-                specialization=ed["specialization"],
-                education_degree=ed["education_degree"],
-                date_of_graduation=ed["date_of_graduation"]
-            )
-            db.session.add(new_education)
-            education_from_db.append(new_education)
-
-    return education_from_db
 
 @doctor_view.route("/doctors", methods=["Get"])
 def get_doctors():
@@ -43,12 +20,8 @@ def get_doctors():
 @doctor_view.route("/doctor", methods=["Post"])
 def create_doctor():
     user = get_user_from_request(request)
-    new_doctor = Doctor(
-        first_name = request.json["first_name"],
-        surname = request.json["surname"],
-        birthday = request.json["birthday"],
-        education = get_education_from_request(request.json["education"])
-    )
+    doctor_data = doctor_schema.load(request.json)
+    new_doctor = Doctor(**doctor_data)
     if user.doctor:
         return Response("{'message':'user already have a doctor'}", status=400, mimetype='application/json')     
     else:
@@ -71,9 +44,8 @@ def put_doctor(id):
     doctor = get_doctor_by_id(id)
     if not is_equal_user_from_request_with_user_db(request_user=user, db_user=doctor.user):
         return Response(status=403)
-    doctor.first_name = request.json["first_name"]
-    doctor.surname = request.json["surname"]
-    doctor.birthday = datetime.strptime(request.json["birthday"], DATE_FORMAT)
+    doctor_data = doctor_schema.load(request.json)
+    Doctor.query.filter_by(id=doctor.id).update(doctor_data)
     db.session.commit()
     return Response(status=200)
 
@@ -95,34 +67,34 @@ def create_education(doctor_id):
     doctor = get_doctor_by_id(doctor_id)
     if not is_equal_user_from_request_with_user_db(request_user=user, db_user=doctor.user):
         return Response(status=403)
-    doctor.education = get_education_from_request(request.json)
+    
+    education_data = education_schema.load(request.json)
+    new_education = Education(**education_data)
+    doctor.education.append(new_education)
+    db.session.add(new_education)
     db.session.commit()
 
-    return doctor_schema.dump(doctor)
+    return Response(education_schema.dumps(new_education), status=201, mimetype='application/json')
 
 @doctor_view.route("/doctor/<doctor_id>/education", methods=["Get"])
 def get_education(doctor_id):
     doctor = get_doctor_by_id(doctor_id)
-    return jsonify(educations_schema.dump(doctor.education))
+    return Response(educations_schema.dumps(doctor.education), status=200, mimetype='application/json')
 
 @doctor_view.route("/doctor/<doctor_id>/education/<education_id>", methods=["Get"])
 def get_education_by_id(doctor_id, education_id):
-    doctor = get_doctor_by_id(doctor_id)
-    education = get_education_by_id_from_doctor(doctor, education_id)
-    return education_schema.dump(education)
+    education = get_object_by_id(Model=Education, id=education_id)
+    return Response(education_schema.dumps(education), status=200, mimetype='application/json')
 
 @token_required
 @doctor_view.route("/doctor/<doctor_id>/education/<education_id>", methods=["Put"])
 def update_education_by_id(doctor_id, education_id):
     user = get_user_from_request(request)
-    doctor = get_doctor_by_id(id)
+    doctor = get_doctor_by_id(doctor_id)
     if not is_equal_user_from_request_with_user_db(request_user=user, db_user=doctor.user):
         return Response(status=403)
-    education = get_education_by_id_from_doctor(doctor, education_id)
-    education.university_name = request.json['university_name']
-    education.specialization = request.json['specialization']
-    education.education_degree = request.json['education_degree']
-    education.date_of_graduation = datetime.strptime(request.json['date_of_graduation'], DATE_FORMAT)
+    education_data = education_schema.load(request.json)
+    Education.query.filter_by(id=education_id).update(education_data)
     db.session.commit()
     return Response(status=200)
 
@@ -130,10 +102,10 @@ def update_education_by_id(doctor_id, education_id):
 @doctor_view.route("/doctor/<doctor_id>/education/<education_id>", methods=["Delete"])
 def delete_education_by_id(doctor_id, education_id):
     user = get_user_from_request(request)
-    doctor = get_doctor_by_id(id)
+    doctor = get_doctor_by_id(doctor_id)
     if not is_equal_user_from_request_with_user_db(request_user=user, db_user=doctor.user):
         return Response(status=403)
-    education = get_education_by_id_from_doctor(doctor, education_id)
+    education = get_object_by_id(Model=Education, id=education_id)
     db.session.delete(education)
     db.session.commit()
     return Response(status=204)
