@@ -47,23 +47,13 @@ address_schema = AddressSchema()
 addresses_schema = AddressSchema(many=True)
 
 
-class PhoneSchema(Schema):
-    id = fields.Integer()
-    country_code = fields.Integer()
-    area_code = fields.Integer()
-    number = fields.Integer()
-
-phone_schema = PhoneSchema()
-phones_schema = PhoneSchema(many=True)
-
-
 class PatientSchema(Schema):
     id = fields.Integer()
     first_name = fields.String()
     surname = fields.String()
     birthday = fields.Date()
+    phone = fields.String()
     address = fields.Nested(AddressSchema)
-    phone = fields.Nested(PhoneSchema)
 
 patient_schema = PatientSchema()
 patients_schema = PatientSchema(many=True)

@@ -10,7 +10,7 @@ class Patient(db.Model):
     user = db.relationship("User", back_populates="patient", uselist=False)
     address = db.relationship("Address", back_populates="patient")
     address_id = db.Column(db.Integer, db.ForeignKey('address.id'))
-    phone = db.relationship("Phone", back_populates="patient", uselist=False)
+    phone = db.Column(db.String(14))
 
 
 class Address(db.Model):
@@ -21,12 +21,3 @@ class Address(db.Model):
     house_number = db.Column(db.String(16))
     number_flat = db.Column(db.String(16))
     patient = db.relationship("Patient", back_populates="address")
-
-class Phone(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    country_code = db.Column(db.Integer)
-    area_code = db.Column(db.Integer)
-    number = db.Column(db.Integer)
-    patient_id = db.Column(db.Integer, db.ForeignKey('patient.id'))
-    patient = db.relationship("Patient", back_populates="phone", uselist=False)
- 

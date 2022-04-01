@@ -1,10 +1,9 @@
 from hashlib import new
 from flask import Blueprint, jsonify, request, Response
 from config import db
-from models.patient import Patient, Address, Phone
+from models.patient import Patient, Address
 from schemas import patient_schema, patients_schema,\
-                    phones_schema, phone_schema,\
-                    address_schema, addresses_schema
+                    address_schema
 from services.auth import token_required, get_user_from_request
 from services.services import get_object_by_id, is_equal_user_from_request_with_user_db
 
