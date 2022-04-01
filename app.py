@@ -22,3 +22,5 @@ from views.auth import my_view
 app.register_blueprint(my_view)
 from views.doctor import doctor_view
 app.register_blueprint(doctor_view)
+from views.patient import patient_view
+app.register_blueprint(patient_view)

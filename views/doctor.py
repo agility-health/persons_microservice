@@ -56,7 +56,7 @@ def create_doctor():
     db.session.add(new_doctor)
     db.session.commit()
 
-    return Response(jsonify(doctor_schema.dump(new_doctor)), status=201, mimetype='application/json')
+    return Response(doctor_schema.dumps(new_doctor), status=201, mimetype='application/json')
 
 
 @doctor_view.route("/doctor/<id>", methods=["Get"])
