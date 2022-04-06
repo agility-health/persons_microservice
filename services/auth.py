@@ -12,14 +12,13 @@ load_dotenv()
 
 
 def token_required(f):
-    @wraps(f)
     def decorator(*args, **kwargs):
         token = None
         if 'x-access-tokens' in request.headers:
             token = request.headers['x-access-tokens']
-
         if not token:
             return jsonify({'message': 'a valid token is missing'})
+
         try:
             if verify_access_token(token):
                 return f(*args, **kwargs)
@@ -72,5 +71,9 @@ def verify_access_token(token):
 
 def get_user_from_request(request):
     token = request.headers['x-access-tokens']
+    paylod = jwt.decode(token, app.config['SECRET_KEY'], os.getenv('ALGORTHM'))
+    return User.query.filter_by(id=paylod.get('id')).first()
+
+def get_user_from_token(token):
     paylod = jwt.decode(token, app.config['SECRET_KEY'], os.getenv('ALGORTHM'))
     return User.query.filter_by(id=paylod.get('id')).first()

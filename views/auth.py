@@ -1,3 +1,4 @@
+from crypt import methods
 import json
 
 from dotenv import load_dotenv
@@ -5,7 +6,8 @@ from flask import request, Blueprint, Response
 
 from models.user import User
 from config import db
-from services.auth import create_token, create_access_token
+from services.auth import create_token, create_access_token, token_required, get_user_from_request
+from schemas import user_schema
 my_view = Blueprint("views", __name__)
 
 
@@ -45,3 +47,10 @@ def login():
 def refresh():
     token = request.json['refresh_token']
     return create_access_token(token)
+
+
+@token_required
+@my_view.route('/user', methods=["Get"])
+def get_user():
+    user = get_user_from_request(request)
+    return Response(user_schema.dumps(user), status=200, mimetype='application/json')
