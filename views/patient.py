@@ -1,4 +1,3 @@
-from hashlib import new
 from flask import Blueprint, jsonify, request, Response
 from config import db
 from models.user import User
@@ -6,7 +5,7 @@ from models.patient import Patient, Address
 from schemas import patient_schema, patients_schema,\
                     address_schema, addresses_schema
 from services.auth import token_required, get_user_from_request
-from services.services import get_object_by_id, is_equal_user_from_request_with_user_db
+from services.services import get_object_by_id
 
 patient_view = Blueprint("patient", __name__)
 
@@ -75,10 +74,9 @@ def get_address(id):
     if not user.patient:
         return Response("user dont have patient", status=400)
     if not user.patient.address:
-        import pdb; pdb.set_trace()
         return Response({}, status=200, mimetype='application/json')
     return Response(
-        addresses_schema.dumps(Address.query.filter_by(id=user.patient.adddres).one_or_none()),
+        address_schema.dumps(Address.query.filter_by(id=user.patient.address_id).one_or_none()),
         status=200,
         mimetype='application/json'
         )

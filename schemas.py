@@ -7,7 +7,8 @@ class UserSchema(Schema):
     id = fields.Integer()
     email = fields.String()
     name = fields.String()
-
+    doctor_id = fields.Integer()
+    patient_id = fields.Integer()
 
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
@@ -53,7 +54,8 @@ class PatientSchema(Schema):
     surname = fields.String()
     birthday = fields.Date()
     phone = fields.String()
-    address = fields.Nested(AddressSchema)
+    address_id = fields.Integer()
+
 
 patient_schema = PatientSchema()
 patients_schema = PatientSchema(many=True)

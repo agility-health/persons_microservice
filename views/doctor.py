@@ -21,7 +21,6 @@ def get_doctor(id):
 @doctor_view.route("/user/<id>/doctor", methods=["Post"])
 def create_doctor(id):
     user = get_user_from_request(request)
-    import pdb;pdb.set_trace()
     if not user.id == int(id):
         return Response(status=403)
     if user.doctor:

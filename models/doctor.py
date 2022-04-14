@@ -12,7 +12,6 @@ class Doctor(db.Model):
     surname = db.Column(db.String(32), index=True)
     birthday = db.Column(db.Date)
     education = db.relationship('Education', secondary=doctor_education, backref= db.backref('doctor', lazy=True))
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship("User", back_populates="doctor", uselist=False)
 
 class Education(db.Model):

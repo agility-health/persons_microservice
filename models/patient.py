@@ -6,7 +6,6 @@ class Patient(db.Model):
     first_name = db.Column(db.String(32))
     surname = db.Column(db.String(32), index=True)
     birthday = db.Column(db.Date)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship("User", back_populates="patient", uselist=False)
     address = db.relationship("Address", back_populates="patient")
     address_id = db.Column(db.Integer, db.ForeignKey('address.id'))
