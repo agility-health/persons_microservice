@@ -3,12 +3,14 @@ import email
 from models.doctor import Doctor
 from marshmallow import Schema, fields
 
+
 class UserSchema(Schema):
     id = fields.Integer()
     email = fields.String()
     name = fields.String()
     doctor_id = fields.Integer()
     patient_id = fields.Integer()
+
 
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
@@ -21,6 +23,7 @@ class EducationSchema(Schema):
     education_degree = fields.String()
     date_of_graduation = fields.Date()
 
+
 education_schema = EducationSchema()
 educations_schema = EducationSchema(many=True)
 
@@ -31,6 +34,7 @@ class DoctorSchema(Schema):
     surname = fields.String()
     birthday = fields.Date()
     education = fields.List(fields.Nested(EducationSchema))
+
 
 doctor_schema = DoctorSchema()
 doctors_schema = DoctorSchema(many=True)
@@ -43,6 +47,7 @@ class AddressSchema(Schema):
     street = fields.String()
     house_number = fields.String()
     number_flat = fields.String()
+
 
 address_schema = AddressSchema()
 addresses_schema = AddressSchema(many=True)
