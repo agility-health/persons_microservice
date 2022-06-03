@@ -13,8 +13,9 @@ mysqlclient = "^2.1.0"
 PyJWT = "^2.3.0"
 redis = "^4.1.0"
 Flask-Cors = "^3.0.10"
-flask-marshmallow = "^0.14.0"
 python-dotenv = "^0.19.2"
+marshmallow = "^3.15.0"
+black = "^22.3.0"
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^2.16.0"
